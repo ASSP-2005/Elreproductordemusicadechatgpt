@@ -1,0 +1,73 @@
+const audio = document.getElementById('audio');
+const playButton = document.getElementById('play-btn');
+const prevButton = document.getElementById('prev-btn');
+const nextButton = document.getElementById('next-btn');
+const progress = document.getElementById('progress');
+const currentTimeElement = document.getElementById('current-time');
+const durationElement = document.getElementById('duration');
+
+const songs = [
+  'https://audio.jukehost.co.uk/js3P2sOFgPh8XfFdUmjcSHtMTCMEIend', // Ruta de tu canción 1
+];
+let currentSongIndex = 0;
+
+function updatePlayButton() {
+  if (audio.paused) {
+    playButton.textContent = '▶️';
+  } else {
+    playButton.textContent = '⏸️';
+  }
+}
+
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const secondsRemaining = Math.floor(seconds % 60);
+  return `${minutes}:${secondsRemaining < 10 ? '0' : ''}${secondsRemaining}`;
+}
+
+function updateProgressBar() {
+  const progressValue = (audio.currentTime / audio.duration) * 100;
+  progress.value = progressValue;
+  currentTimeElement.textContent = formatTime(audio.currentTime);
+  durationElement.textContent = formatTime(audio.duration);
+}
+
+function setProgress() {
+  const newTime = (progress.value / 100) * audio.duration;
+  audio.currentTime = newTime;
+}
+
+function playPauseAudio() {
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+  updatePlayButton();
+}
+
+function nextSong() {
+  currentSongIndex = (currentSongIndex + 1) % songs.length;
+  audio.src = songs[currentSongIndex];
+  audio.play();
+}
+
+function prevSong() {
+  currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+  audio.src = songs[currentSongIndex];
+  audio.play();
+}
+
+audio.addEventListener('timeupdate', updateProgressBar);
+progress.addEventListener('input', setProgress);
+playButton.addEventListener('click', playPauseAudio);
+nextButton.addEventListener('click', nextSong);
+prevButton.addEventListener('click', prevSong);
+
+audio.addEventListener('loadedmetadata', () => {
+  durationElement.textContent = formatTime(audio.duration);
+});
+
+window.onload = () => {
+  audio.src = songs[currentSongIndex]; // Cargar la primera canción
+};
